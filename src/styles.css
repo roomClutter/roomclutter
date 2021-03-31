@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0; 
+  font-family:'Montserrat';  
+}
+
+.container {
+  min-height: 100vh;
+  background-color: rgb(241, 241, 241);
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2324272b' fill-opacity='0.03'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.m-right {
+    margin-right: 2rem; 
+}
+
+.header {
+    background-color: rgb(54, 54, 54);
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100px; 
+}
+
+.spacing {
+  margin-top: 0.6rem; 
+}
+
+.titleText {
+  font-size: 2.5rem; 
+  font-weight: 400; 
+  color: white;
+  margin-left: 2rem; 
+}
+.downloadButton {
+  background-color: rgb(37, 133, 243);
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 2rem;
+  margin-bottom: 10px;
+  width: 300px;
+}
+.downloadText {
+  color: white;
+  font-size: 28px;
+  text-align: center;
+}
+.listContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 260px;
+  margin: 0.6rem 0; 
+  background-color: white;
+  padding: 1rem; 
+  border-radius: 0.2rem; 
+}
+
+.list-red{
+    background-color: #ffcccb;
+}
+
+.list-yellow {
+    background-color: #fdfd96;
+}
+
+.list-green {
+    background-color: #cdffcc;  
+}
+
+.listItemContainer {
+  align-self: flex-start; 
+}
+
+.listItemText1 {
+  font-size: 1.2rem;
+  margin-bottom: 3px;
+}
+
+.listSeparator {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.listCross {
+  height: 10px;
+  width: 10px;
+}
+
+.listItemPhoto {
+  width: 250px;
+  height: 200px;
+  margin-bottom: 0.5rem; 
+  border-radius: 0.2rem; 
+} 
+
+.editContainer{
+  justify-content: "center";
+  padding: 10px;
+  background-color: "#f0ffff";
+}
+
+.editTitle {
+  font-size: 3rem; 
+  margin-bottom: 40px;
+  margin-top: 1rem; 
+  margin-left: 2rem; 
+  text-align: left;
+}
+
+.editInputView {
+  align-items: "center";
+  background-color: '#E5E5E5';
+  border-radius: 5px;
+  height: 50px;
+  justify-content: center;
+  text-align: center;
+  width: 250px;
+}
+
+.pickerView {
+  display: flex; 
+  width: 60%;
+  margin: auto;  
+  align-items: center;
+  flex: 0.3;
+  flex-direction: "row";
+}
+
+.pickerItem {
+  font-size: 32px;
+  height: "80%"
+}
+
+.editText {
+  font-size: 24px;
+  color: black;
+}
+
+.editScreenButton1 {
+  width: 200px;
+  background-color: '#707070';
+  border-radius: 5px;
+  height: 75px;
+  align-items: "center";
+  justify-content: "center";
+  text-align: "center";
+  margin-bottom: 20px;
+}
+
+.editScreenButton2 {
+  width: 200px;
+  background-color: '#707070';
+  border-radius: 5px;
+  height: 75px;
+  align-items: "center";
+  text-align: "center";
+  justify-content: "center";
+}
+
+.editInputText {
+  font-size: 24px;
+}
+
+.edit {
+    display: inline-block;
+    padding: 0.20em 0.7em;
+    background-color: #2d8fff;
+    border: 0.1em solid rgb(0, 0, 0);
+    margin: 0 0.3em 0.3em 0;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    border-radius: 0.3rem; 
+    font-weight: 300;
+    color: white;
+    text-align:center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.large-edit {
+    padding: 1rem 2rem;
+}
+
+.ftext {
+  color: rgb(255, 255, 255); 
+  margin-right: 0.3rem;   
+  margin-left: 0.4rem; 
+}
+
+.fbutton {
+  display: inline-block;
+  padding: 0.20em 0.7em;
+  background-color: #2d8fff;
+  border: 0.1em solid rgb(0, 0, 0);
+  margin-left: 0.5rem;
+  border-radius: 0.12em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-weight: 300;
+  color: white;
+  text-align:center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+ 
+
+.edit:hover{
+    background-color:#0268dd;
+    border: 0.1em solid rgb(0, 0, 0);
+    transform: scale(1.05); 
+}
+
+.edit:active{
+    transform: scale(1);
+    transform: translateY(1px); 
+}
+
+.fselect {
+  padding: 0.20em 0.7em; 
+}
+
+.filtering {
+  display: flex;
+  align-items: center;  
+}
+
