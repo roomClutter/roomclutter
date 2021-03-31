@@ -2,9 +2,9 @@ import React from 'react';
 
 const filter = (props) => { 
   
-  const ops = props.options.map(item => {
+  const ops = props.options.map((item,i) => {
     return ( 
-      <option label={item} value={item} />
+      <option key={i} label={item} value={item} />
     ); 
   });
   
@@ -13,12 +13,11 @@ const filter = (props) => {
             <div className = "pickerView">
             <p className = "ftext">{props.title}</p>
             <select  
-                selectedValue = "Filter"
                 className="fselect"
                 onChange = {e => props.filter(e.target.value)}>
                 {ops} 
             </select>
-            </div>
+            </div> 
         </>
     )
 } 

@@ -8,8 +8,8 @@ export default function ListItem(props) {
     return (
     <div className={`listContainer ${color}`}>
         <div>
-        <img className='listItemPhoto' src={props.item.image}/>
-        </div>
+        <img className='listItemPhoto' src={props.item.image} alt="Room clutterness display"/>
+        </div>  
         <div className='listItemContainer'>
         <p className='listItemText1'>Location: {props.item.location}</p>
         <p className='listItemText1'>Type: {props.item.room_type}</p>

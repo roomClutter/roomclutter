@@ -8,7 +8,7 @@ import Filter from './filter'
 
 import ListItem from './listItem'; 
 
-var dataArray = new Array();
+var dataArray = [];
 
 var loaded = false;
 var editing = false;
@@ -35,17 +35,16 @@ function HomeScreen() {
       let users_path = await loadUsers()
       let imgs_path = await loadRooms(users_path)
       dataArray = await loadList(imgs_path)
-      console.log(dataArray)
       setData(dataArray);
       setTempData(dataArray);
       editing_result = false;
     }
     loadAll();
   }, [editing_result]);
-  console.log(dirtyLevel, roomChoice);
+
   useEffect(() => {
     timer = setInterval(() => {
-      if (editing_result == true)
+      if (editing_result === true)
       {
         editing = false;
       }
@@ -64,25 +63,25 @@ function HomeScreen() {
   const filterRoom = (filter) => {
     setRoomChoice(filter)
   }
-  console.log(tempData)
+
   
   const filterSubmit = (firstf, secondf) => {
     var newData;
-    if(firstf == "All" && secondf =="All") {
+    if(firstf === "All" && secondf ==="All") {
       newData = data;
-    } else if (firstf == "All") {
-      newData = data.filter(item => item.room_type == secondf)
-    } else if(secondf == "All") {
-      newData = data.filter(item => item.clutter == firstf)
+    } else if (firstf === "All") {
+      newData = data.filter(item => item.room_type === secondf)
+    } else if(secondf === "All") {
+      newData = data.filter(item => item.clutter === firstf)
     } else {
-      newData = data.filter(item => (item.room_type == secondf) && (item.clutter == firstf))
+      newData = data.filter(item => (item.room_type === secondf) && (item.clutter === firstf))
     }
     setTempData(newData)
   }  
   
   const handleEdit = (key) => {
     for (var i = 0; i < dataArray.length; i++) {
-      if (dataArray[i].image == key) {
+      if (dataArray[i].image === key) {
         setPath(dataArray[i].path);
         setLocation(dataArray[i].location);
         setRoomType(dataArray[i].room_type);
@@ -94,20 +93,20 @@ function HomeScreen() {
 
   const renderItems = tempData.map((item,index) => {
     return (
-      <div>
+      <div key={index}> 
         <ListItem key={index} item ={item} handleEdit={handleEdit}/>
       </div>
   )}) 
      
-  console.log(data); 
-  if (loaded == false) {
+  //console.log(data); 
+  if (loaded === false) {
     return (
       <div className="container">
         Loading...
       </div>
     );
   }
-  if (editState == true) {
+  if (editState === true) {
      return (
       <div className="container">
         <p className="editTitle">Edit Information</p>
@@ -126,7 +125,7 @@ function HomeScreen() {
         <div className = "pickerView">
           <p className = "editText">Room Type:</p>
           <select
-            selectedValue = {room_type}
+            value = {room_type} 
             className="pickerStyle"
             onChange = {e => setRoomType(e.target.value)}>
             <option label="Living Room" value="Living Room" />
@@ -156,7 +155,7 @@ function HomeScreen() {
         <div className = "pickerView">
           <p className = "editText">CIR Value:</p>
           <select
-            selectedValue = {clutter}
+            value = {clutter}
             className="pickerStyle"
             onChange={e => setClutter(e.target.value)}>
             <option label="1" value="1" />
@@ -208,13 +207,12 @@ function HomeScreen() {
 async function loadUsers() {
   //List all users in /dev/media
   var usersRef;
-  var location, room_type, clutter, image;
-  var userPaths = new Array();
+  var userPaths = [];
   var callLoadFunct = false;
   
   var storageRef = firebase.storage().ref()
   usersRef = storageRef.child(`dev/media`)
-  console.log(usersRef)
+  //console.log(usersRef)
   await usersRef.listAll() //Get all user folders
   .then((result) => {
     result.prefixes.forEach((folderRef) => {
@@ -233,18 +231,18 @@ async function loadUsers() {
 
 async function loadRooms(users) {
   var storageRef = firebase.storage().ref()
-  var userRef, imgRef;
-  var imagePaths = new Array();
+  var userRef;
+  var imagePaths = [];
   var callLoadFunct = false;
   
   if (typeof users !== 'undefined') {
     for (var i = 0; i < users.length; i++) {
       userRef = storageRef.child(users[i])
-      console.log(userRef)
+      //console.log(userRef)
       await userRef.listAll()
       .then((result) => {
         result.items.forEach((itemRef) => {
-          console.log(itemRef)
+          //console.log(itemRef)
           if (imagePaths.indexOf(itemRef.fullPath) === -1) {
             imagePaths.push(itemRef.fullPath)
             callLoadFunct = true
@@ -269,7 +267,7 @@ async function loadRooms(users) {
 async function loadList(imgs) {
   var imgRef, storageRef
   var location, room_type, clutter, image, path
-  var dataArr = new Array();
+  var dataArr = [];
   
   storageRef = firebase.storage().ref()
   
