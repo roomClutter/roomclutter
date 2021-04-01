@@ -27,8 +27,9 @@ function HomeScreen() {
   const [room_type, setRoomType] = useState("Living Room");
   const [clutter, setClutter] = useState(1);
   const [path, setPath] = useState(null);
-  const[dirtyLevel, setDirtyLevel] = useState("All");
-  const[roomChoice, setRoomChoice] = useState("All");   
+  const[lowerDirtyLevel, setLowerDirtyLevel] = useState("All");
+  const[upperDirtyLevel, setUpperDirtyLevel] = useState("All");
+  const[roomChoice, setRoomChoice] = useState("All"); 
   
   useEffect(() => {
     const loadAll = async () => {
@@ -56,8 +57,12 @@ function HomeScreen() {
     }
   }, []);
 
-  const filterDirty = (filter) => {
-    setDirtyLevel(filter)
+  const filterDirtyLower = (filter) => {
+    setLowerDirtyLevel(filter)
+  }
+  
+  const filterDirtyUpper = (filter) => {
+    setUpperDirtyLevel(filter)
   }
 
   const filterRoom = (filter) => {
@@ -65,19 +70,29 @@ function HomeScreen() {
   }
 
   
-  const filterSubmit = (firstf, secondf) => {
+  const filterSubmit = (firstf, secondf, thirdf) => {
     var newData;
-    if(firstf === "All" && secondf ==="All") {
+
+    if((firstf === "All" && thirdf === "All") || (secondf === "All" && thirdf === "All")) {
       newData = data;
-    } else if (firstf === "All") {
-      newData = data.filter(item => item.room_type === secondf)
-    } else if(secondf === "All") {
-      newData = data.filter(item => item.clutter === firstf)
+    } else if (firstf === "All" || secondf === "All") {
+      newData = data.filter(item => item.room_type === thirdf)
+    } else if(thirdf === "All") {
+      newData = data.filter(item => (item.clutter >= firstf) && (item.clutter <= secondf))
     } else {
-      newData = data.filter(item => (item.room_type === secondf) && (item.clutter === firstf))
+      newData = data.filter(item => (item.room_type === thirdf) && ((item.cluttwr >= firstf) && (item.clutter <= secondf)))
     }
     setTempData(newData)
-  }  
+  }
+
+  const resetFilters = () => {
+
+    setLowerDirtyLevel("All")
+    setUpperDirtyLevel("All")
+    setRoomChoice("All")
+
+    setTempData(data)
+  }
   
   const handleEdit = (key) => {
     for (var i = 0; i < dataArray.length; i++) {
@@ -98,7 +113,7 @@ function HomeScreen() {
       </div>
   )}) 
      
-  //console.log(data); 
+
   if (loaded === false) {
     return (
       <div className="container">
@@ -113,13 +128,10 @@ function HomeScreen() {
         <div className = "editInputView">
           <input
             autoCapitalize = "none"
-            autoCompleteType = "off"
-            autoCorrect = {false}
-            blurOnSubmit = {false}
+            autoComplete = "off"
             onChange = {(e) => setLocation(e.target.value)}
             placeholder = "Location"
             className = "editInputText"
-            textContentType = "oneTimeCode"
             value = {location}/>
         </div>
         <div className = "pickerView">
@@ -186,9 +198,11 @@ function HomeScreen() {
         <header className="header">
             <p className="titleText">List of Rooms</p>
             <div className="filtering">
-              <Filter title="Clutter: " options={clutterOptions} filter={filterDirty} />
-              <Filter title="Room: " options={roomOptions} filter={filterRoom} />
-              <button className="fbutton" onClick={() => filterSubmit(dirtyLevel, roomChoice)} type="submit">Filter</button>
+            <Filter title="Clutter: " id="clutterLowerFilter" options={clutterOptions} filter={filterDirtyLower} />
+              <Filter title=" to " id="clutterHigherFilter" options={clutterOptions} filter={filterDirtyUpper} />
+              <Filter title="Room: " id="roomTypeFilter" options={roomOptions} filter={filterRoom} />
+              <button className="fbutton" onClick={() => filterSubmit(lowerDirtyLevel, upperDirtyLevel, roomChoice)} type="submit">Filter</button>
+              <button className="fbutton" onClick={() => resetFilters()} type="submit">Reset</button>
             </div>   
             <div className="m-right" onClick = {() => downloadAll()}>
                 <p className="edit large-edit">Download All Data</p>
@@ -233,19 +247,21 @@ async function loadRooms(users) {
   var storageRef = firebase.storage().ref()
   var userRef;
   var imagePaths = [];
+
   var callLoadFunct = false;
-  
+
   if (typeof users !== 'undefined') {
     for (var i = 0; i < users.length; i++) {
+      
       userRef = storageRef.child(users[i])
       //console.log(userRef)
       await userRef.listAll()
-      .then((result) => {
+      .then((result) => { 
         result.items.forEach((itemRef) => {
           //console.log(itemRef)
           if (imagePaths.indexOf(itemRef.fullPath) === -1) {
             imagePaths.push(itemRef.fullPath)
-            callLoadFunct = true
+            callLoadFunct = true  
           }
         });
       })
