@@ -6,7 +6,7 @@ import 'firebase/storage';
 import download from 'downloadjs';
 import Filter from './filter'
 
-import ListItem from './listItem'; 
+import ListItem from './listItem';
 
 var dataArray = [];
 
@@ -15,7 +15,7 @@ var editing = false;
 var editing_result = false;
 var timer;
 
-var clutterOptions = ["All",'1','2','3','4','5','6','7','8','9'] 
+var clutterOptions = ["All",'1','2','3','4','5','6','7','8','9']
 var roomOptions = ["All","Living Room","Kitchen","Bedroom #1","Bedroom #2","Bedroom #3","Bedroom #4","Bathroom #1","Bathroom #2","Bathroom #3","Dining Room","Hallway","Garage","Basement","Attic","Den","Office","Family Room","Deck","Balcony","Pantry","Boiler Room","Other"]
 
 function HomeScreen() {
@@ -29,7 +29,7 @@ function HomeScreen() {
   const [path, setPath] = useState(null);
   const[lowerDirtyLevel, setLowerDirtyLevel] = useState("All");
   const[upperDirtyLevel, setUpperDirtyLevel] = useState("All");
-  const[roomChoice, setRoomChoice] = useState("All"); 
+  const[roomChoice, setRoomChoice] = useState("All");
   
   useEffect(() => {
     const loadAll = async () => {
@@ -45,7 +45,7 @@ function HomeScreen() {
 
   useEffect(() => {
     timer = setInterval(() => {
-      if (editing_result === true)
+      if (editing_result == true)
       {
         editing = false;
       }
@@ -70,6 +70,7 @@ function HomeScreen() {
   }
 
   
+  //1st and 2nd for lower and upper clutter levels, 3rd is room type
   const filterSubmit = (firstf, secondf, thirdf) => {
     var newData;
 
@@ -79,24 +80,26 @@ function HomeScreen() {
       newData = data.filter(item => item.room_type === thirdf)
     } else if(thirdf === "All") {
       newData = data.filter(item => (item.clutter >= firstf) && (item.clutter <= secondf))
-    } else {
-      newData = data.filter(item => (item.room_type === thirdf) && ((item.cluttwr >= firstf) && (item.clutter <= secondf)))
+    } else if (firstf != "All" && secondf != "All" && thirdf != "All"){ newData = data.filter(item => (item.room_type == thirdf) && ((item.clutter >= firstf) && (item.clutter <= secondf)))
     }
     setTempData(newData)
   }
-
+  
   const resetFilters = () => {
-
+    //Reset filter vars
     setLowerDirtyLevel("All")
     setUpperDirtyLevel("All")
     setRoomChoice("All")
-
+    
+    //Reset pickers at top of screen
+    
+    //Reset room data
     setTempData(data)
   }
   
   const handleEdit = (key) => {
     for (var i = 0; i < dataArray.length; i++) {
-      if (dataArray[i].image === key) {
+      if (dataArray[i].image == key) {
         setPath(dataArray[i].path);
         setLocation(dataArray[i].location);
         setRoomType(dataArray[i].room_type);
@@ -108,11 +111,10 @@ function HomeScreen() {
 
   const renderItems = tempData.map((item,index) => {
     return (
-      <div key={index}> 
+      <div key={index}>
         <ListItem key={index} item ={item} handleEdit={handleEdit}/>
       </div>
-  )}) 
-     
+  )})
 
   if (loaded === false) {
     return (
@@ -137,7 +139,7 @@ function HomeScreen() {
         <div className = "pickerView">
           <p className = "editText">Room Type:</p>
           <select
-            value = {room_type} 
+            value = {room_type}
             className="pickerStyle"
             onChange = {e => setRoomType(e.target.value)}>
             <option label="Living Room" value="Living Room" />
@@ -153,7 +155,7 @@ function HomeScreen() {
             <option label="Hallway" value="Hallway" />
             <option label="Garage" value="Garage" />
             <option label="Basement" value="Basement" />
-            <option label="Attic" value="Attic" /> 
+            <option label="Attic" value="Attic" />
             <option label="Den" value="Den" />
             <option label="Office" value="Office" />
             <option label="Family Room" value="Family Room" />
@@ -183,10 +185,10 @@ function HomeScreen() {
         </div>
         <div className='editScreenButton1'
           onClick = {() => {updateMetadata(path, location, room_type, clutter);} }>
-          <p className='edit'>Change Information</p> 
+          <p className='edit'>Change Information</p>
         </div>
         <div onClick = {() => {editing = false;} } >
-          <p className='edit'>Cancel Editing</p> 
+          <p className='edit'>Cancel Editing</p>
         </div>
       </div>
     );
@@ -198,18 +200,18 @@ function HomeScreen() {
         <header className="header">
             <p className="titleText">List of Rooms</p>
             <div className="filtering">
-            <Filter title="Clutter: " id="clutterLowerFilter" options={clutterOptions} filter={filterDirtyLower} />
+              <Filter title="Clutter: " id="clutterLowerFilter" options={clutterOptions} filter={filterDirtyLower} />
               <Filter title=" to " id="clutterHigherFilter" options={clutterOptions} filter={filterDirtyUpper} />
               <Filter title="Room: " id="roomTypeFilter" options={roomOptions} filter={filterRoom} />
               <button className="fbutton" onClick={() => filterSubmit(lowerDirtyLevel, upperDirtyLevel, roomChoice)} type="submit">Filter</button>
               <button className="fbutton" onClick={() => resetFilters()} type="submit">Reset</button>
-            </div>   
+            </div>
             <div className="m-right" onClick = {() => downloadAll()}>
                 <p className="edit large-edit">Download All Data</p>
             </div>
         </header>
         <div className='listSeparator'>
-          {renderItems} 
+          {renderItems}
         </div>
       </div>
     );
@@ -256,12 +258,12 @@ async function loadRooms(users) {
       userRef = storageRef.child(users[i])
       //console.log(userRef)
       await userRef.listAll()
-      .then((result) => { 
+      .then((result) => {
         result.items.forEach((itemRef) => {
           //console.log(itemRef)
           if (imagePaths.indexOf(itemRef.fullPath) === -1) {
             imagePaths.push(itemRef.fullPath)
-            callLoadFunct = true  
+            callLoadFunct = true
           }
         });
       })
@@ -409,3 +411,4 @@ async function downloadStepTwo(pictures, zip) {
 }
 
 export default HomeScreen;
+
