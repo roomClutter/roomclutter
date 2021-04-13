@@ -10,16 +10,16 @@ const filter = (props) => {
   
     return (
         <>
-            <div className = "pickerView">
-            <p className = "ftext">{props.title}</p>
-            <select  
-                className="fselect"
-                onChange = {e => props.filter(e.target.value)}>
-                {ops} 
-            </select>
-            </div> 
-        </>
+          <div className = "pickerView">
+          <p className = "ftext">{props.title}</p>
+          <select  
+              className="fselect"
+              onChange = {e => props.filter(e.target.value)}>
+              {ops} 
+          </select>
+          </div> 
+        </> 
     )
-} 
+}   
  
 export default filter
