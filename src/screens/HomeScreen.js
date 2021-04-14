@@ -30,6 +30,7 @@ function HomeScreen() {
   const[lowerDirtyLevel, setLowerDirtyLevel] = useState("All");
   const[upperDirtyLevel, setUpperDirtyLevel] = useState("All");
   const[roomChoice, setRoomChoice] = useState("All");
+  const[error, setError] = useState(false);
   
   useEffect(() => {
     const loadAll = async () => {
@@ -57,6 +58,8 @@ function HomeScreen() {
     }
   }, []);
 
+ // console.log(data);
+
   const filterDirtyLower = (filter) => {
     setLowerDirtyLevel(filter)
   }
@@ -69,11 +72,34 @@ function HomeScreen() {
     setRoomChoice(filter)
   }
 
+  const dateSortNewest = () => {
+    var newData;
+    newData = [...tempData].sort(function(a,b){
+      return new Date(b.date_created) - new Date(a.date_created);
+      })
+    //newData.forEach(item => console.log(new Date(item.date_created)))
+    setTempData(newData);
+  }
+
+  const dateSortOldest = () => {
+    var newData;
+    newData = [...tempData].sort(function(a,b){
+      return new Date(a.date_created) - new Date(b.date_created);
+      })
+   
+    setTempData(newData);
+  }
+  
+
   
   //1st and 2nd for lower and upper clutter levels, 3rd is room type
   const filterSubmit = (firstf, secondf, thirdf) => {
     var newData;
-
+    if(firstf > secondf) {
+      setError(true);
+      return;
+    }
+    setError(false);
     if((firstf === "All" && thirdf === "All") || (secondf === "All" && thirdf === "All")) {
       newData = data;
     } else if (firstf === "All" || secondf === "All") {
@@ -85,6 +111,7 @@ function HomeScreen() {
     setTempData(newData)
   }
   
+  /*
   const resetFilters = () => {
     //Reset filter vars
     setLowerDirtyLevel("All")
@@ -96,6 +123,7 @@ function HomeScreen() {
     //Reset room data
     setTempData(data)
   }
+  */
   
   const handleEdit = (key) => {
     for (var i = 0; i < dataArray.length; i++) {
@@ -204,7 +232,10 @@ function HomeScreen() {
               <Filter title=" to " id="clutterHigherFilter" options={clutterOptions} filter={filterDirtyUpper} />
               <Filter title="Room: " id="roomTypeFilter" options={roomOptions} filter={filterRoom} />
               <button className="fbutton" onClick={() => filterSubmit(lowerDirtyLevel, upperDirtyLevel, roomChoice)} type="submit">Filter</button>
-              <button className="fbutton" onClick={() => resetFilters()} type="submit">Reset</button>
+              <p className="ftext">Sort By:</p>
+              <button onClick={dateSortNewest}>Newest</button>
+              <button onClick={dateSortOldest}>Oldest</button>
+              {error ? <div style={{color: "red"}}>Select valid Range</div> : <></>}
             </div>
             <div className="m-right" onClick = {() => downloadAll()}>
                 <p className="edit large-edit">Download All Data</p>
@@ -212,13 +243,15 @@ function HomeScreen() {
         </header>
         <div className='listSeparator'>
           {renderItems}
-        </div>
+        </div> 
       </div>
     );
     
   }
   
 }
+
+//<button className="fbutton" onClick={() => resetFilters()} type="submit">Reset</button>
 
 async function loadUsers() {
   //List all users in /dev/media
@@ -284,7 +317,7 @@ async function loadRooms(users) {
 
 async function loadList(imgs) {
   var imgRef, storageRef
-  var location, room_type, clutter, image, path
+  var location, room_type, clutter, image, path, time_created, date_created
   var dataArr = [];
   
   storageRef = firebase.storage().ref()
@@ -297,6 +330,10 @@ async function loadList(imgs) {
         location = metadata.customMetadata.location
         room_type = metadata.customMetadata.room_type
         clutter = metadata.customMetadata.clutter
+        time_created = new Date(metadata.timeCreated) //Keep original time for sorting by date
+        date_created = String(new Date(metadata.timeCreated)) //Just retrieving day, month, year
+        date_created = date_created.split(" ").slice(1,4) //1: Month, 2: Day, 3: Year
+        date_created = date_created[0] + " " + date_created[1] + " " + date_created[2]
       })
       .catch((error) => {
         console.log("ERROR: Retrieving metadata")
@@ -306,7 +343,7 @@ async function loadList(imgs) {
       .then((url) => {
         image = url
         path = imgRef.fullPath
-        dataArr.push({location, room_type, clutter, image, path})
+        dataArr.push({location, room_type, clutter, image, path, date_created, time_created})
       })
       .catch((error) => {
         console.log("ERROR: Downloading images: " + error)
@@ -353,8 +390,8 @@ async function downloadAll() {
 //  ]
 
   var zip = require('jszip')(); //npm install jszip
-  var readme_text = "Pictures of rooms are in the \"pictures\" folder.\nMetadata for corresponding rooms is in the \"metadata\" folder.\n\nThe numbers match up (example: image1.jpeg has its metadata in metadata1.txt)."
-  zip.file("README.md", readme_text)
+  var readme_text = "Pictures of rooms are in the \"pictures\" folder.\nMetadata for corresponding rooms is in the \"metadata\" folder.\n\nThe numbers match up (example: image1.jpg has its metadata in metadata1.txt)."
+  zip.file("README.txt", readme_text)
   const pictures = [];
   for (let i = 0; i < dataArray.length; i++) {
     pictures.push(dataArray[i].image)
@@ -386,9 +423,14 @@ async function downloadStepTwo(pictures, zip) {
   .then(() => {
     for (let i = 0; i < dataArray.length; i++) {
       try {
-        var text_data = "Location: " + dataArray[i].location + "\nRoom Type: " + dataArray[i].room_type + "\nCIR Rating: " + dataArray[i].clutter + "\nURL: " + dataArray[i].image
-        //download(text_data, "metadata" + String(i + 1) + ".txt")
-        metadatafolder.file("metadata" + String(i + 1) + ".txt", text_data)
+        var json_obj = new Object();
+        json_obj.Location = dataArray[i].location;
+        json_obj.RoomType = dataArray[i].room_type;
+        json_obj.CIR = dataArray[i].clutter;
+        json_obj.URL = dataArray[i].image;
+        json_obj.Upload_Time = dataArray[i].time_created;
+        var json_data = JSON.stringify(json_obj);
+        metadatafolder.file("metadata" + String(i + 1) + ".json", json_data)
       }
       catch(error) {
         alert('Error while downloading metadata: ' + String(error));
@@ -411,4 +453,3 @@ async function downloadStepTwo(pictures, zip) {
 }
 
 export default HomeScreen;
-
