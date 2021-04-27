@@ -273,3 +273,44 @@
   padding: 0.20em 0.7em; 
 }
 
+.login {
+  display: flex;
+  position: relative;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background-color:rgb(30, 110, 200);
+}
+
+.login-text {
+  position: absolute;
+  top: 20%; 
+  font-size: 4rem;
+  font-weight: 100; 
+}
+
+.login-input {
+  padding: 1rem;
+  margin-bottom: 2rem; 
+}
+
+.login-button {
+  padding: 0.5rem 4rem; 
+  background-color: rgb(123, 245, 23);
+  border: none;
+  transition: all 0.3s;
+}
+
+.login-button:hover {
+  background-color: rgb(95, 184, 22);
+}
+
+.login-error {
+  position: absolute;
+  left: 45%;
+  top: 43%;
+  z-index: 50;
+  color: rgb(255, 0, 0);
+}

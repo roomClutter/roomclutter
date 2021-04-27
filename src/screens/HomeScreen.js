@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import  firebase from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import 'firebase/storage';
 import download from 'downloadjs';
 import Filter from './filter'
+import Login from './Login';
+import {key} from '../key';
 
 import ListItem from './listItem';
 
@@ -31,6 +33,9 @@ function HomeScreen() {
   const[upperDirtyLevel, setUpperDirtyLevel] = useState("All");
   const[roomChoice, setRoomChoice] = useState("All");
   const[error, setError] = useState(false);
+  const[loginError, setLoginError] = useState(false);
+
+  const[auth, setAuth] = useState(false)
   
   useEffect(() => {
     const loadAll = async () => {
@@ -59,6 +64,14 @@ function HomeScreen() {
   }, []);
 
  // console.log(data);
+
+ const handleLogin = (password) => {
+   if(password == key) {
+     setAuth(true);
+   } else {
+     setLoginError(true)
+   }
+ }
 
   const filterDirtyLower = (filter) => {
     setLowerDirtyLevel(filter)
@@ -136,13 +149,40 @@ function HomeScreen() {
       }
     }
   }
+  
+  const handleDelete = (key) => {
+    for (var i = 0; i < dataArray.length; i++) {
+      if (dataArray[i].image == key) {
+        var storageRef = firebase.storage().ref()
+        var deletePath = dataArray[i].path
+        var deleteRef = storageRef.child(deletePath)
+        deleteRef.delete().then(() => {
+          console.log("Room deleted")
+          let newItems = data.filter(item => {
+            return item.image != key
+          })
+          editing_result = true
+          setData(newItems);
+        });
+      }
+    }
+  }
 
   const renderItems = tempData.map((item,index) => {
     return (
       <div key={index}>
-        <ListItem key={index} item ={item} handleEdit={handleEdit}/>
+        <ListItem key={index} item ={item} handleEdit={handleEdit} handleDelete={handleDelete}/>
       </div>
   )})
+
+  if(!auth) {
+    return (
+      <>
+        {loginError ? <div className="login-error">Wrong password</div> : <div></div>}
+        <Login handleLogin={handleLogin}/>
+      </>
+    )
+  }
 
   if (loaded === false) {
     return (
@@ -243,7 +283,7 @@ function HomeScreen() {
         </header>
         <div className='listSeparator'>
           {renderItems}
-        </div> 
+        </div>
       </div>
     );
     
