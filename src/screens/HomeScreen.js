@@ -6,7 +6,6 @@ import 'firebase/storage';
 import download from 'downloadjs';
 import Filter from './filter'
 import Login from './Login';
-import {key} from '../key';
 
 import ListItem from './listItem';
 
@@ -15,6 +14,7 @@ var dataArray = [];
 var loaded = false;
 var editing = false;
 var editing_result = false;
+var resetting = false;
 var timer;
 
 var clutterOptions = ["All",'1','2','3','4','5','6','7','8','9']
@@ -24,6 +24,10 @@ function HomeScreen() {
   const[data, setData] = useState([]);
   const[tempData, setTempData] = useState([]);
   const[editState, setEditState] = useState(false);
+  const[resetState, setResetState] = useState(false);
+  
+  const [password1, setPassword1] = useState(null);
+  const [password2, setPassword2] = useState(null);
   
   const [location, setLocation] = useState(null);
   const [room_type, setRoomType] = useState("Living Room");
@@ -51,27 +55,45 @@ function HomeScreen() {
 
   useEffect(() => {
     timer = setInterval(() => {
-      if (editing_result == true)
+      if (editing_result === true)
       {
         editing = false;
       }
+      if (resetting === false)
+      {
+        setPassword1(null);
+        setPassword2(null);
+      }
       setEditState(editing);
+      setResetState(resetting);
     }, 1000);
     return () => {
       clearInterval(timer)
       editing = false
+      resetting = false
     }
   }, []);
 
- // console.log(data);
-
- const handleLogin = (password) => {
-   if(password == key) {
-     setAuth(true);
-   } else {
-     setLoginError(true)
-   }
- }
+  const handleLogin = async(password) => {
+    var key;
+    const pass_ref = firebase.storage().ref().child(`dev/other`);
+    try {
+      let url = await pass_ref.child('key.json').getDownloadURL()
+      const result = await fetch(url)
+      var content = await (result.text())
+      content = JSON.parse(content)
+      key = content.key
+    }
+    catch(error) {
+      alert("Enter the default password. The saved password was not found.")
+      key = "admin"
+    }
+    if (password === key) {
+      setAuth(true);
+    } else {
+      setLoginError(true)
+    }
+  }
 
   const filterDirtyLower = (filter) => {
     setLowerDirtyLevel(filter)
@@ -261,8 +283,40 @@ function HomeScreen() {
       </div>
     );
   }
-  
-  else {
+  if (resetState === true) {
+     return (
+      <div className="container">
+        <p className="editTitle">Reset Access Password</p>
+        <p className="resetInfo">Passwords must be at least five characters in length for security purposes.</p>
+        <div className = "editInputView">
+          <input
+            autoCapitalize = "none"
+            autoComplete = "off"
+            onChange = {(e) => setPassword1(e.target.value)}
+            placeholder = "New Password"
+            className = "resetInputText"
+            value = {password1}/>
+        </div>
+        <div className = "editInputView">
+          <input
+            autoCapitalize = "none"
+            autoComplete = "off"
+            onChange = {(e) => setPassword2(e.target.value)}
+            placeholder = "Confirm Password"
+            className = "resetInputText"
+            value = {password2}/>
+        </div>
+        <div className='editScreenButton1'
+          onClick = {async() => {password1 === password2 ? await changePassword(password1) : alert("Error! Passwords do not match.")}}>
+          <p className='edit'>Change Password</p>
+        </div>
+        <div onClick = {() => { resetting = false; setPassword1(null); setPassword2(null); } } >
+          <p className='edit'>Cancel</p>
+        </div>
+      </div>
+    );
+  }
+  if (resetState === false && editState === false) {
     return (
       <div className="container">
         <header className="header">
@@ -276,6 +330,9 @@ function HomeScreen() {
               <button onClick={dateSortNewest}>Newest</button>
               <button onClick={dateSortOldest}>Oldest</button>
               {error ? <div style={{color: "red"}}>Select valid Range</div> : <></>}
+            </div>
+            <div className="m-right" onClick = {() => {resetting = true;}}>
+                <p className="edit large-edit">Reset Access Password</p>
             </div>
             <div className="m-right" onClick = {() => downloadAll()}>
                 <p className="edit large-edit">Download All Data</p>
@@ -490,6 +547,25 @@ async function downloadStepTwo(pictures, zip) {
   .catch((error) => {
     alert('Error while downloading files: ' + String(error));
   });
+}
+
+async function changePassword(pass) {
+  if (pass.length < 5) {
+    alert('Error: Password is less than 5 characters.')
+  }
+  else {
+    const pass_obj = {"key": pass}
+    const pass_ref = firebase.storage().ref().child(`dev/other/key.json`);
+    
+    const blob = new Blob([JSON.stringify(pass_obj)], {type: 'application/json'});
+    pass_ref.put(blob).then((snapshot) => {
+      alert("Password updated.")
+      resetting = false;
+    })
+    .catch((error) => {
+      alert("Error: Problem updating password. Please try again later.")
+    })
+  }
 }
 
 export default HomeScreen;
